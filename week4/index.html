@@ -15,12 +15,30 @@
 <body>
     <div id="map"></div>
     <script>
-        const map = new maplibregl.Map({
-            container: 'map',
-            style: 'https://demotiles.maplibre.org/style.json',
-            center: [0, 20],
-            zoom: 2
-        });
+const map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    sources: {
+      'google-tiles': {
+        type: 'raster',
+        tiles: ['https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'],
+        tileSize: 256
+      }
+    },
+    layers: [
+      {
+        id: 'google-tiles-layer',
+        type: 'raster',
+        source: 'google-tiles',
+        minzoom: 0,
+        maxzoom: 19
+      }
+    ]
+  },
+  center: [139.7671, 35.6812], // 東京駅
+  zoom: 2
+});
 
         map.addControl(new maplibregl.NavigationControl());
 
@@ -36,7 +54,14 @@
                 source: 'heritage',
                 paint: {
                     'circle-radius': 6,
-                    'circle-color': '#FF5722'
+                    'circle-color': [
+                        'match',
+                        ['get', 'category'],
+                        '自然', '#FF5722',
+                        '文化', '#4CAF50',
+                        '複合', '#2196F3',
+                        /* default */ '#9E9E9E'
+                    ]
                 }
             });
 
