@@ -7,7 +7,8 @@
         "name": "白川郷・五箇山の合掌造り集落",
         "country": "日本",
         "comment": "日本有数の豪雪地帯に立ち並ぶ独自の家屋",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -23,7 +24,8 @@
         "name": "白神山地",
         "country": "日本",
         "comment": "ブナと造山運動が生み出す豊かな生態系",
-        "category": "自然"
+        "category": "自然",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -39,7 +41,8 @@
         "name": "屋久島",
         "country": "日本",
         "comment": "日本の北から南までの気候を合わせもつ島",
-        "category": "自然"
+        "category": "自然",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -55,7 +58,8 @@
         "name": "ドゥブロヴニクの旧市街",
         "country": "クロアチア",
         "comment": "アドリア海の真珠と呼ばれる美しい城壁都市",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -71,7 +75,8 @@
         "name": "ボロブドゥールの仏教寺院群",
         "country": "インドネシア",
         "comment": "世界最大級の仏教遺跡で、壮大な彫刻が特徴",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -87,7 +92,8 @@
         "name": "ピントゥラス川のクエバ・デ・ラス・マノス",
         "country": "アルゼンチン",
         "comment": "先史時代の壁画が残る洞窟",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -103,7 +109,8 @@
         "name": "ストーンヘンジ、エイヴベリーの巨石遺跡と関連遺跡群",
         "country": "イギリス",
         "comment": "先史時代の巨石建造物で、天文学的な意義を持つ",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -119,7 +126,8 @@
         "name": "メンフィスのピラミッド地帯",
         "country": "エジプト",
         "comment": "古代エジプト文明の象徴的な建造物群",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -135,7 +143,8 @@
         "name": "ギョべクリ・テペ",
         "country": "トルコ",
         "comment": "世界最古の宗教的建造物とされる遺跡",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -151,7 +160,8 @@
         "name": "ヴェネツィアとその潟",
         "country": "イタリア",
         "comment": "水上都市として知られる歴史的な都市",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -167,7 +177,8 @@
         "name": "隊商都市ペトラ",
         "country": "ヨルダン",
         "comment": "砂岩に彫られた壮大な古代都市",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -183,7 +194,8 @@
         "name": "シェーンブルン宮殿と庭園",
         "country": "オーストリア",
         "comment": "ハプスブルク家の夏の離宮として有名",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -199,7 +211,8 @@
         "name": "アウシュヴィッツ・ビルケナウ：ナチス・ドイツの強制絶滅収容所",
         "country": "ポーランド",
         "comment": "ホロコーストの記憶を伝える歴史的な場所",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -215,7 +228,8 @@
         "name": "ハ・ロン湾",
         "country": "ベトナム",
         "comment": "石灰岩の奇岩が点在する美しい湾",
-        "category": "自然"
+        "category": "自然",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -231,7 +245,8 @@
         "name": "始皇帝陵と兵馬俑坑",
         "country": "中国",
         "comment": "秦の始皇帝の墓とその周囲に埋められた兵馬俑",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -247,7 +262,8 @@
         "name": "アルベルベッロのトゥルッリ",
         "country": "イタリア",
         "comment": "独特な円錐形の屋根を持つ伝統的な家屋群",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -263,7 +279,8 @@
         "name": "文化交差路サマルカンド",
         "country": "ウズベキスタン",
         "comment": "シルクロードの重要な交易拠点として栄えた都市",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -279,7 +296,8 @@
         "name": "ヌビアの遺跡群：アブ・シンベルからフィラエまで",
         "country": "エジプト",
         "comment": "古代エジプトの建築技術を示す壮大な遺跡群",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -295,7 +313,8 @@
         "name": "タージ・マハル",
         "country": "インド",
         "comment": "愛の象徴として建てられた白大理石の霊廟",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -311,7 +330,8 @@
         "name": "マチュ・ピチュ",
         "country": "ペルー",
         "comment": "インカ帝国の遺跡で、山中に位置する神秘的な都市",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -327,7 +347,8 @@
         "name": "フィリピンのコルディリェーラの棚田群",
         "country": "フィリピン",
         "comment": "先住民が築いた壮大な棚田群",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -343,7 +364,8 @@
         "name": "ワルシャワ歴史地区",
         "country": "ポーランド",
         "comment": "第二次世界大戦後に復元された歴史的地区",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -359,7 +381,8 @@
         "name": "カナディアン・ロッキー山脈国立公園群",
         "country": "カナダ",
         "comment": "壮大な山岳景観と豊かな自然が広がる国立公園群",
-        "category": "自然"
+        "category": "自然",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -375,7 +398,8 @@
         "name": "ヴィクトリアの滝",
         "country": "ジンバブエ／ザンビア",
         "comment": "世界三大瀑布の一つで、壮大な水量を誇る滝",
-        "category": "自然"
+        "category": "自然",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -391,7 +415,8 @@
         "name": "バイカル湖",
         "country": "ロシア",
         "comment": "世界最深の湖で、豊かな生態系を持つ",
-        "category": "自然"
+        "category": "自然",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -407,7 +432,8 @@
         "name": "アテネのアクロポリス",
         "country": "ギリシャ",
         "comment": "古代ギリシャ文明の象徴的な遺跡",
-        "category": "文化"
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",
@@ -422,8 +448,9 @@
       "properties": {
         "name": "ケルン大聖堂",
         "country": "ドイツ",
-        "comment": "行ってみたい！",
-        "category": "文化"
+        "comment": "ゴシック建築の傑作で、世界最大級の大聖堂",
+        "category": "文化",
+        "visited": false
       },
       "geometry": {
         "type": "Point",

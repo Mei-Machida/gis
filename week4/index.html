@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,24 +19,27 @@ const map = new maplibregl.Map({
   style: {
     version: 8,
     sources: {
-      'google-tiles': {
+      'gsi-english': {
         type: 'raster',
-        tiles: ['https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'],
-        tileSize: 256
+        tiles: [
+          'https://cyberjapandata.gsi.go.jp/xyz/english/{z}/{x}/{y}.png'
+        ],
+        tileSize: 256,
+        attribution: '地理院タイル &copy; <a href="https://www.gsi.go.jp/" target="_blank">国土地理院</a>'
       }
     },
     layers: [
       {
-        id: 'google-tiles-layer',
+        id: 'gsi-english-layer',
         type: 'raster',
-        source: 'google-tiles',
+        source: 'gsi-english',
         minzoom: 0,
-        maxzoom: 19
+        maxzoom: 18
       }
     ]
   },
-  center: [139.7671, 35.6812], // 東京駅
-  zoom: 2
+  center: [138.0, 36.0], // 日本全体を中心に設定
+  zoom: 3 // さらにズームアウト
 });
 
         map.addControl(new maplibregl.NavigationControl());
@@ -53,28 +55,61 @@ const map = new maplibregl.Map({
                 type: 'circle',
                 source: 'heritage',
                 paint: {
-                    'circle-radius': 6,
+                    'circle-radius': 10,
                     'circle-color': [
-                        'match',
-                        ['get', 'category'],
-                        '文化', '#FF5722',
-                        '自然', '#4CAF50',
-                        '複合', '#2196F3',
-                        /* default */ '#9E9E9E'
-                    ]
+                        'case',
+                        ['boolean', ['get', 'visited'], false], // 訪問済みの場合
+                        '#FFD700', // ゴールド色
+                        [
+                            'match',
+                            ['get', 'category'],
+                            '文化', '#FF5722',
+                            '自然', '#4CAF50',
+                            '複合', '#2196F3',
+                            /* default */ '#9E9E9E'
+                        ]
+                    ],
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': '#000000'
                 }
             });
 
             map.on('click', 'heritage-points', function (e) {
                 const props = e.features[0].properties;
-                new maplibregl.Popup()
+                const popupContent = `
+                    <strong>${props.name}</strong><br>
+                    ${props.country}<br>
+                    ${props.comment}<br>
+                    <label>
+                        <input type="checkbox" id="visited-checkbox" ${props.visited ? 'checked' : ''}>
+                        訪問済み
+                    </label>
+                    <div id="comment-section" style="margin-top: 10px; ${props.visited ? '' : 'display: none;'}">
+                        <textarea id="visit-comment" placeholder="感想を入力してください" style="width: 100%; height: 50px;">${props.visitComment || ''}</textarea>
+                    </div>
+                `;
+                const popup = new maplibregl.Popup()
                     .setLngLat(e.lngLat)
-                    .setHTML(
-                        '<strong>' + props.name + '</strong><br>' +
-                        props.country + '<br>' +
-                        props.comment
-                    )
+                    .setHTML(popupContent)
                     .addTo(map);
+
+                const checkbox = popup.getElement().querySelector('#visited-checkbox');
+                const commentSection = popup.getElement().querySelector('#comment-section');
+                const textarea = popup.getElement().querySelector('#visit-comment');
+
+                // チェックボックスのイベントリスナー
+                checkbox.addEventListener('change', function (event) {
+                    const visited = event.target.checked;
+                    props.visited = visited; // プロパティを更新
+                    commentSection.style.display = visited ? 'block' : 'none';
+                    map.getSource('heritage').setData(map.getSource('heritage')._data); // 地図を更新
+                });
+
+                // テキストエリアのイベントリスナー
+                textarea.addEventListener('input', function (event) {
+                    props.visitComment = event.target.value; // 感想をプロパティに保存
+                    map.getSource('heritage').setData(map.getSource('heritage')._data); // 地図を更新
+                });
             });
 
             map.on('mouseenter', 'heritage-points', function () {
