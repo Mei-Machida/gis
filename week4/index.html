@@ -80,6 +80,7 @@ const map = new maplibregl.Map({
                     <strong>${props.name}</strong><br>
                     ${props.country}<br>
                     ${props.comment}<br>
+                    登録年: ${props.registeredYear}<br>
                     <label>
                         <input type="checkbox" id="visited-checkbox" ${props.visited ? 'checked' : ''}>
                         訪問済み
@@ -102,6 +103,7 @@ const map = new maplibregl.Map({
                     const visited = event.target.checked;
                     props.visited = visited; // プロパティを更新
                     commentSection.style.display = visited ? 'block' : 'none';
+                
                     map.getSource('heritage').setData(map.getSource('heritage')._data); // 地図を更新
                 });
 
