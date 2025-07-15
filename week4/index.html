@@ -44,10 +44,27 @@ const map = new maplibregl.Map({
 
         map.addControl(new maplibregl.NavigationControl());
 
+        // Add functionality to save GeoJSON data to localStorage
+        function saveGeoJSONToLocalStorage(data) {
+            localStorage.setItem('heritageData', JSON.stringify(data));
+        }
+
+        // Load GeoJSON data from localStorage
+        function loadGeoJSONFromLocalStorage() {
+            const savedData = localStorage.getItem('heritageData');
+            return savedData ? JSON.parse(savedData) : null;
+        }
+
+        // Modify the map load event to use saved data if available
         map.on('load', function () {
+            let heritageData = loadGeoJSONFromLocalStorage();
+            if (!heritageData) {
+                heritageData = 'world_heritage_dream.geojson'; // Default data source
+            }
+
             map.addSource('heritage', {
                 type: 'geojson',
-                data: 'world_heritage_dream.geojson'
+                data: heritageData
             });
 
             map.addLayer({
@@ -88,6 +105,7 @@ const map = new maplibregl.Map({
                     <div id="comment-section" style="margin-top: 10px; ${props.visited ? '' : 'display: none;'}">
                         <textarea id="visit-comment" placeholder="感想を入力してください" style="width: 100%; height: 50px;">${props.visitComment || ''}</textarea>
                     </div>
+                    <button id="save-button" style="margin-top: 10px;">保存</button>
                 `;
                 const popup = new maplibregl.Popup()
                     .setLngLat(e.lngLat)
@@ -97,6 +115,7 @@ const map = new maplibregl.Map({
                 const checkbox = popup.getElement().querySelector('#visited-checkbox');
                 const commentSection = popup.getElement().querySelector('#comment-section');
                 const textarea = popup.getElement().querySelector('#visit-comment');
+                const saveButton = popup.getElement().querySelector('#save-button');
 
                 // チェックボックスのイベントリスナー
                 checkbox.addEventListener('change', function (event) {
@@ -111,6 +130,14 @@ const map = new maplibregl.Map({
                 textarea.addEventListener('input', function (event) {
                     props.visitComment = event.target.value; // 感想をプロパティに保存
                     map.getSource('heritage').setData(map.getSource('heritage')._data); // 地図を更新
+                });
+
+                // 保存ボタンのイベントリスナー
+                saveButton.addEventListener('click', function () {
+                    // GeoJSONソースに更新されたプロパティを保存
+                    map.getSource('heritage').setData(map.getSource('heritage')._data);
+                    saveGeoJSONToLocalStorage(map.getSource('heritage')._data); // ローカルストレージに保存
+                    alert('保存しました！');
                 });
             });
 
