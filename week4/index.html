@@ -179,23 +179,32 @@ const map = new maplibregl.Map({
             sidebar.style.overflowY = 'auto';
             sidebar.style.display = 'none';
 
-            // Add a close button to the sidebar
+            // Add a header to the sidebar
+            const header = document.createElement('div');
+            header.textContent = '世界遺産リスト';
+            header.style.backgroundColor = '#007BFF';
+            header.style.color = 'white';
+            header.style.padding = '15px';
+            header.style.fontSize = '18px';
+            header.style.fontWeight = 'bold';
+            header.style.display = 'flex';
+            header.style.justifyContent = 'space-between';
+            header.style.alignItems = 'center';
+            header.style.borderTopLeftRadius = '10px';
+            header.style.borderTopRightRadius = '10px';
+
+            // Move the close button into the header
             const closeSidebarButton = document.createElement('button');
             closeSidebarButton.textContent = '閉じる';
-            closeSidebarButton.style.marginBottom = '10px';
-            closeSidebarButton.style.cursor = 'pointer';
-            closeSidebarButton.style.position = 'absolute';
-            closeSidebarButton.style.top = '10px';
-            closeSidebarButton.style.right = '10px';
-            closeSidebarButton.style.backgroundColor = '#f44336';
+            closeSidebarButton.style.margin = '0';
+            closeSidebarButton.style.backgroundColor = 'transparent';
             closeSidebarButton.style.color = 'white';
+            closeSidebarButton.style.fontSize = '16px';
             closeSidebarButton.style.border = 'none';
-            closeSidebarButton.style.padding = '5px 10px';
-            closeSidebarButton.style.borderRadius = '5px';
-            closeSidebarButton.addEventListener('click', () => {
-                sidebar.style.display = 'none';
-            });
-            sidebar.appendChild(closeSidebarButton);
+            closeSidebarButton.style.cursor = 'pointer';
+            header.appendChild(closeSidebarButton);
+
+            sidebar.appendChild(header);
 
             // Add a container for the list of heritage sites
             const sidebarList = document.createElement('ul');
@@ -234,20 +243,84 @@ const map = new maplibregl.Map({
                 }
 
                 const features = heritageSource._data.features;
+
+                // Style the sidebar to look like an app with a header and card-style list items
+                sidebar.style.backgroundColor = '#f0f0f0'; // サイドバー全体の背景色を薄いグレーに設定
+                sidebar.style.borderRadius = '10px';
+                sidebar.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+
+                // Style the header
+                header.style.backgroundColor = '#007BFF'; // ヘッダー部分の背景色を青に設定
+                header.style.color = 'white'; // ヘッダーの文字色を白に設定
+
+                // Style the list items as cards
+                sidebarList.style.padding = '10px';
+                sidebarList.style.margin = '0';
+                sidebarList.style.backgroundColor = '#ffffff'; // リスト部分の背景色を白に設定
+                sidebarList.style.borderRadius = '8px'; // リスト部分に角丸を追加
+
+                // Update each list item style to format the country on a new line with smaller font size
                 features.forEach(feature => {
                     const props = feature.properties;
                     const coords = feature.geometry.coordinates;
 
                     const listItem = document.createElement('li');
-                    listItem.textContent = `${props.name}（${props.country}）`;
                     listItem.style.cursor = 'pointer';
-                    listItem.style.marginBottom = '5px';
+                    listItem.style.marginBottom = '10px';
+                    listItem.style.padding = '15px';
+                    listItem.style.border = '1px solid #ddd';
+                    listItem.style.borderRadius = '8px';
+                    listItem.style.backgroundColor = '#ffffff';
+                    listItem.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                    listItem.style.transition = 'background-color 0.3s, transform 0.2s';
+
+                    const nameElement = document.createElement('div');
+                    nameElement.textContent = props.name;
+                    nameElement.style.fontSize = '16px';
+                    nameElement.style.fontWeight = 'bold';
+
+                    const countryElement = document.createElement('div');
+                    countryElement.textContent = `(${props.country})`;
+                    countryElement.style.fontSize = '12px';
+                    countryElement.style.color = '#666';
+                    countryElement.style.marginTop = '5px';
+
+                    listItem.appendChild(nameElement);
+                    listItem.appendChild(countryElement);
+
+                    listItem.addEventListener('mouseover', () => {
+                        listItem.style.backgroundColor = '#f0f8ff';
+                        listItem.style.transform = 'scale(1.02)';
+                        map.easeTo({
+                            center: coords,
+                            zoom: 4, // ズームレベルを少し下げる
+                            duration: 500
+                        });
+                    });
+
+                    listItem.addEventListener('mouseout', () => {
+                        listItem.style.backgroundColor = '#ffffff';
+                        listItem.style.transform = 'scale(1)';
+                    });
 
                     listItem.addEventListener('click', () => {
                         map.flyTo({
                             center: coords,
                             zoom: 10
                         });
+
+                        const popupContent = `
+                            <strong>${props.name}</strong><br>
+                            ${props.country}<br>
+                            ${props.comment || '詳細情報はありません'}<br>
+                            登録年: ${props.registeredYear || '不明'}<br>
+                            <img src="${props.imageUrl || 'placeholder.jpg'}" alt="${props.name}" style="width:100%; height:auto; margin-top:10px;">
+                        `;
+
+                        new maplibregl.Popup()
+                            .setLngLat(coords)
+                            .setHTML(popupContent)
+                            .addTo(map);
                     });
 
                     sidebarList.appendChild(listItem);
