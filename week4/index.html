@@ -184,6 +184,14 @@ const map = new maplibregl.Map({
             closeSidebarButton.textContent = '閉じる';
             closeSidebarButton.style.marginBottom = '10px';
             closeSidebarButton.style.cursor = 'pointer';
+            closeSidebarButton.style.position = 'absolute';
+            closeSidebarButton.style.top = '10px';
+            closeSidebarButton.style.right = '10px';
+            closeSidebarButton.style.backgroundColor = '#f44336';
+            closeSidebarButton.style.color = 'white';
+            closeSidebarButton.style.border = 'none';
+            closeSidebarButton.style.padding = '5px 10px';
+            closeSidebarButton.style.borderRadius = '5px';
             closeSidebarButton.addEventListener('click', () => {
                 sidebar.style.display = 'none';
             });
@@ -212,6 +220,7 @@ const map = new maplibregl.Map({
             listTitle.style.top = '10px';
             listTitle.style.left = '10px';
             listTitle.style.zIndex = '1000';
+            listTitle.style.fontSize = '16px'; // Increase the font size of the "世界遺産リスト" button
             document.body.appendChild(listTitle);
 
             // Update the "世界遺産リスト" button to dynamically fetch features from GeoJSON
@@ -245,6 +254,12 @@ const map = new maplibregl.Map({
                 });
 
                 sidebar.style.display = 'block'; // Show the sidebar
+                listTitle.style.display = 'none'; // Hide the "世界遺産リスト" button
+            });
+
+            closeSidebarButton.addEventListener('click', () => {
+                sidebar.style.display = 'none'; // Hide the sidebar
+                listTitle.style.display = 'block'; // Show the "世界遺産リスト" button
             });
         });
 
@@ -256,6 +271,9 @@ const map = new maplibregl.Map({
         if (toggleButton) {
             toggleButton.remove();
         }
+
+        // Adjust the sidebar list to add padding at the top to avoid overlap
+        sidebarList.style.paddingTop = '90px';
     </script>
 </body>
 </html>
