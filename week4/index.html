@@ -148,7 +148,110 @@ const map = new maplibregl.Map({
             map.on('mouseleave', 'heritage-points', function () {
                 map.getCanvas().style.cursor = '';
             });
+
+            // Create a sidebar for displaying the list of heritage sites
+            const sidebar = document.createElement('div');
+            sidebar.id = 'heritage-sidebar';
+            sidebar.style.position = 'fixed';
+            sidebar.style.top = '0';
+            sidebar.style.left = '0';
+            sidebar.style.width = '300px';
+            sidebar.style.height = '100%';
+            sidebar.style.backgroundColor = 'white';
+            sidebar.style.padding = '20px';
+            sidebar.style.boxShadow = '2px 0 5px rgba(0, 0, 0, 0.2)';
+            sidebar.style.zIndex = '1000';
+            sidebar.style.overflowY = 'auto';
+            sidebar.style.display = 'none';
+
+            // Add a close button to the sidebar
+            const closeSidebarButton = document.createElement('button');
+            closeSidebarButton.textContent = '閉じる';
+            closeSidebarButton.style.marginBottom = '10px';
+            closeSidebarButton.style.cursor = 'pointer';
+            closeSidebarButton.addEventListener('click', () => {
+                sidebar.style.display = 'none';
+            });
+            sidebar.appendChild(closeSidebarButton);
+
+            // Add a container for the list of heritage sites
+            const sidebarList = document.createElement('ul');
+            sidebarList.style.listStyle = 'none';
+            sidebarList.style.padding = '0';
+            sidebarList.style.margin = '0';
+            sidebar.appendChild(sidebarList);
+
+            document.body.appendChild(sidebar);
+
+            // Make the "世界遺産リスト" title clickable
+            const listTitle = document.createElement('button');
+            listTitle.textContent = '世界遺産リスト';
+            listTitle.style.backgroundColor = '#007BFF';
+            listTitle.style.color = 'white';
+            listTitle.style.border = 'none';
+            listTitle.style.padding = '10px';
+            listTitle.style.cursor = 'pointer';
+            listTitle.style.borderRadius = '5px';
+            listTitle.style.marginBottom = '10px';
+            listTitle.style.position = 'absolute';
+            listTitle.style.top = '10px';
+            listTitle.style.left = '10px';
+            listTitle.style.zIndex = '1000';
+            document.body.appendChild(listTitle);
+
+            // Update the "世界遺産リスト" button to display the full list of heritage sites
+            listTitle.addEventListener('click', () => {
+                sidebarList.innerHTML = ''; // Clear existing items
+
+                const heritageSites = [
+                    "白川郷・五箇山の合掌造り集落（日本）",
+                    "白神山地（日本）",
+                    "屋久島（日本）",
+                    "ドゥブロヴニクの旧市街（クロアチア）",
+                    "ボロブドゥールの仏教寺院群（インドネシア）",
+                    "ピントゥラス川のクエバ・デ・ラス・マノス（アルゼンチン）",
+                    "ストーンヘンジ、エイヴベリーの巨石遺跡と関連遺跡群（イギリス）",
+                    "メンフィスのピラミッド地帯（エジプト）",
+                    "ギョべクリ・テペ（トルコ）",
+                    "ヴェネツィアとその潟（イタリア）",
+                    "隊商都市ペトラ（ヨルダン）",
+                    "シェーンブルン宮殿と庭園（オーストリア）",
+                    "アウシュヴィッツ・ビルケナウ：ナチス・ドイツの強制絶滅収容所（ポーランド）",
+                    "ハ・ロン湾（ベトナム）",
+                    "始皇帝陵と兵馬俑坑（中国）",
+                    "アルベルベッロのトゥルッリ（イタリア）",
+                    "文化交差路サマルカンド（ウズベキスタン）",
+                    "ヌビアの遺跡群：アブ・シンベルからフィラエまで（エジプト）",
+                    "タージ・マハル（インド）",
+                    "マチュ・ピチュ（ペルー）",
+                    "フィリピンのコルディリェーラの棚田群（フィリピン）",
+                    "ワルシャワ歴史地区（ポーランド）",
+                    "カナディアン・ロッキー山脈国立公園群（カナダ）",
+                    "ヴィクトリアの滝（ジンバブエ／ザンビア）",
+                    "バイカル湖（ロシア）",
+                    "アテネのアクロポリス（ギリシャ）",
+                    "ケルン大聖堂（ドイツ）"
+                ];
+
+                heritageSites.forEach(site => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = site;
+                    listItem.style.marginBottom = '5px';
+                    sidebarList.appendChild(listItem);
+                });
+
+                sidebar.style.display = 'block'; // Show the sidebar
+            });
         });
+
+        // Ensure the list container is always visible
+        listContainer.style.display = 'block';
+
+        // Remove the toggle button as it is no longer needed
+        const toggleButton = document.getElementById('toggle-place-list');
+        if (toggleButton) {
+            toggleButton.remove();
+        }
     </script>
 </body>
 </html>
