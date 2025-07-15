@@ -62,34 +62,49 @@ const map = new maplibregl.Map({
                 heritageData = 'world_heritage_dream.geojson'; // Default data source
             }
 
-            map.addSource('heritage', {
-                type: 'geojson',
-                data: heritageData
-            });
+            // Fetch the GeoJSON data and add it to the map
+            fetch('world_heritage_dream.geojson')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('GeoJSONデータの読み込みに失敗しました');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Add the GeoJSON data as a source
+                    map.addSource('heritage', {
+                        type: 'geojson',
+                        data: data
+                    });
 
-            map.addLayer({
-                id: 'heritage-points',
-                type: 'circle',
-                source: 'heritage',
-                paint: {
-                    'circle-radius': 10,
-                    'circle-color': [
-                        'case',
-                        ['boolean', ['get', 'visited'], false], // 訪問済みの場合
-                        '#FFD700', // ゴールド色
-                        [
-                            'match',
-                            ['get', 'category'],
-                            '文化', '#FF5722',
-                            '自然', '#4CAF50',
-                            '複合', '#2196F3',
-                            /* default */ '#9E9E9E'
-                        ]
-                    ],
-                    'circle-stroke-width': 2,
-                    'circle-stroke-color': '#000000'
-                }
-            });
+                    // Add the layer for the heritage points
+                    map.addLayer({
+                        id: 'heritage-points',
+                        type: 'circle',
+                        source: 'heritage',
+                        paint: {
+                            'circle-radius': 10,
+                            'circle-color': [
+                                'case',
+                                ['boolean', ['get', 'visited'], false], // 訪問済みの場合
+                                '#FFD700', // ゴールド色
+                                [
+                                    'match',
+                                    ['get', 'category'],
+                                    '文化', '#FF5722',
+                                    '自然', '#4CAF50',
+                                    '複合', '#2196F3',
+                                    /* default */ '#9E9E9E'
+                                ]
+                            ],
+                            'circle-stroke-width': 2,
+                            'circle-stroke-color': '#000000'
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('GeoJSONデータの読み込みエラー:', error);
+                });
 
             map.on('click', 'heritage-points', function (e) {
                 const props = e.features[0].properties;
@@ -199,44 +214,33 @@ const map = new maplibregl.Map({
             listTitle.style.zIndex = '1000';
             document.body.appendChild(listTitle);
 
-            // Update the "世界遺産リスト" button to display the full list of heritage sites
+            // Update the "世界遺産リスト" button to dynamically fetch features from GeoJSON
             listTitle.addEventListener('click', () => {
                 sidebarList.innerHTML = ''; // Clear existing items
 
-                const heritageSites = [
-                    "白川郷・五箇山の合掌造り集落（日本）",
-                    "白神山地（日本）",
-                    "屋久島（日本）",
-                    "ドゥブロヴニクの旧市街（クロアチア）",
-                    "ボロブドゥールの仏教寺院群（インドネシア）",
-                    "ピントゥラス川のクエバ・デ・ラス・マノス（アルゼンチン）",
-                    "ストーンヘンジ、エイヴベリーの巨石遺跡と関連遺跡群（イギリス）",
-                    "メンフィスのピラミッド地帯（エジプト）",
-                    "ギョべクリ・テペ（トルコ）",
-                    "ヴェネツィアとその潟（イタリア）",
-                    "隊商都市ペトラ（ヨルダン）",
-                    "シェーンブルン宮殿と庭園（オーストリア）",
-                    "アウシュヴィッツ・ビルケナウ：ナチス・ドイツの強制絶滅収容所（ポーランド）",
-                    "ハ・ロン湾（ベトナム）",
-                    "始皇帝陵と兵馬俑坑（中国）",
-                    "アルベルベッロのトゥルッリ（イタリア）",
-                    "文化交差路サマルカンド（ウズベキスタン）",
-                    "ヌビアの遺跡群：アブ・シンベルからフィラエまで（エジプト）",
-                    "タージ・マハル（インド）",
-                    "マチュ・ピチュ（ペルー）",
-                    "フィリピンのコルディリェーラの棚田群（フィリピン）",
-                    "ワルシャワ歴史地区（ポーランド）",
-                    "カナディアン・ロッキー山脈国立公園群（カナダ）",
-                    "ヴィクトリアの滝（ジンバブエ／ザンビア）",
-                    "バイカル湖（ロシア）",
-                    "アテネのアクロポリス（ギリシャ）",
-                    "ケルン大聖堂（ドイツ）"
-                ];
+                const heritageSource = map.getSource('heritage');
+                if (!heritageSource || !heritageSource._data) {
+                    alert('データがまだ読み込まれていません');
+                    return;
+                }
 
-                heritageSites.forEach(site => {
+                const features = heritageSource._data.features;
+                features.forEach(feature => {
+                    const props = feature.properties;
+                    const coords = feature.geometry.coordinates;
+
                     const listItem = document.createElement('li');
-                    listItem.textContent = site;
+                    listItem.textContent = `${props.name}（${props.country}）`;
+                    listItem.style.cursor = 'pointer';
                     listItem.style.marginBottom = '5px';
+
+                    listItem.addEventListener('click', () => {
+                        map.flyTo({
+                            center: coords,
+                            zoom: 10
+                        });
+                    });
+
                     sidebarList.appendChild(listItem);
                 });
 
