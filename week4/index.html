@@ -149,7 +149,6 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
             map.on('click', 'heritage-points', function (e) {
                 const props = e.features[0].properties;
                 const coords = e.lngLat;
-                const thumbnailURL = props.thumbnail || 'https://via.placeholder.com/150';
 
                 // Add a UNESCO link to the popup if available
                 const heritageLinks = [
@@ -193,12 +192,12 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
                 const linkData = heritageLinks.find(link => link.name === props.name);
                 const unescoLink = linkData ? `<a href="${linkData.url}" target="_blank" style="display: inline-block; margin-top: 10px; padding: 8px 12px; background-color: #007BFF; color: white; text-decoration: none; border-radius: 5px;">UNESCOページ</a>` : '';
 
+                // Remove the image section from the popup content
                 const popupContent = `
                     <strong>${props.name}</strong><br>
                     ${props.country}<br>
                     ${props.comment || '詳細情報はありません'}<br>
                     登録年: ${props.registeredYear || '不明'}<br>
-                    <img src="${thumbnailURL}" alt="${props.name}" style="width: 100%; margin-top: 10px; border-radius: 5px;">
                     ${unescoLink}
                 `;
                 showPopup(coords, popupContent);
@@ -375,7 +374,7 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
 
                         // Convert the link into a button style
                         linkElement.style.display = 'inline-block';
-                        linkElement.style.padding = '8px 12px';
+                        linkElement.style.padding = '6px 10px';
                         linkElement.style.backgroundColor = '#007BFF';
                         linkElement.style.color = '#ffffff';
                         linkElement.style.border = 'none';
@@ -415,7 +414,6 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
                             ${props.country}<br>
                             ${props.comment || '詳細情報はありません'}<br>
                             登録年: ${props.registeredYear || '不明'}<br>
-                            <img src="${props.thumbnail || 'https://via.placeholder.com/150'}" alt="${props.name}" style="width: 100%; margin-top: 10px; border-radius: 5px;">
                         `;
                         showPopup(coords, popupContent);
                         map.flyTo({
@@ -527,7 +525,6 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
                             ${props.country}<br>
                             ${props.comment || '詳細情報はありません'}<br>
                             登録年: ${props.registeredYear || '不明'}<br>
-                            <img src="${props.thumbnail || 'https://via.placeholder.com/150'}" alt="${props.name}" style="width: 100%; margin-top: 10px; border-radius: 5px;">
                         `;
 
                         new maplibregl.Popup()
@@ -552,6 +549,21 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
             if (!searchBarContainer.contains(event.target)) {
                 searchResults.style.display = 'none';
             }
+        });
+
+        // Add smooth scrolling behavior to all buttons
+        const buttons = document.querySelectorAll('button, a');
+        buttons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                const targetId = button.getAttribute('href');
+                if (targetId && targetId.startsWith('#')) {
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
         });
     </script>
 </body>
