@@ -42,6 +42,9 @@ const map = new maplibregl.Map({
   zoom: 3 // さらにズームアウト
 });
 
+// Change the background color of the map container to light blue
+document.getElementById('map').style.backgroundColor = '#ADD8E6';
+
         map.addControl(new maplibregl.NavigationControl());
 
         // Add functionality to save GeoJSON data to localStorage
@@ -53,6 +56,19 @@ const map = new maplibregl.Map({
         function loadGeoJSONFromLocalStorage() {
             const savedData = localStorage.getItem('heritageData');
             return savedData ? JSON.parse(savedData) : null;
+        }
+
+        // Save visited status and comment to localStorage
+        function saveToLocalStorage(name, visited, comment) {
+            const data = JSON.parse(localStorage.getItem('heritageData')) || {};
+            data[name] = { visited, comment };
+            localStorage.setItem('heritageData', JSON.stringify(data));
+        }
+
+        // Load visited status and comment from localStorage
+        function loadFromLocalStorage(name) {
+            const data = JSON.parse(localStorage.getItem('heritageData')) || {};
+            return data[name] || { visited: false, comment: '' };
         }
 
         // Modify the map load event to use saved data if available
@@ -106,62 +122,86 @@ const map = new maplibregl.Map({
                     console.error('GeoJSONデータの読み込みエラー:', error);
                 });
 
+            // Ensure only one popup is displayed at a time
+            let currentPopup = null;
+
+            function showPopup(coords, content) {
+                // Close the current popup if it exists
+                if (currentPopup) {
+                    currentPopup.remove();
+                }
+
+                // Create a new popup
+                currentPopup = new maplibregl.Popup()
+                    .setLngLat(coords)
+                    .setHTML(content)
+                    .addTo(map);
+
+                // Change the popup background color to light blue
+                currentPopup.getElement().style.backgroundColor = '#ADD8E6';
+
+                // Increase the padding and border radius of the popup background
+                currentPopup.getElement().style.padding = '15px';
+                currentPopup.getElement().style.borderRadius = '12px';
+            }
+
+            // Update map click event to use the shared popup instance
             map.on('click', 'heritage-points', function (e) {
                 const props = e.features[0].properties;
+                const coords = e.lngLat;
+                const thumbnailURL = props.thumbnail || 'https://via.placeholder.com/150';
+
+                // Add a UNESCO link to the popup if available
+                const heritageLinks = [
+                    {"name": "白川郷・五箇山の合掌造り集落", "url": "https://whc.unesco.org/ja/list/734"},
+                    {"name": "白神山地", "url": "https://whc.unesco.org/ja/list/663"},
+                    {"name": "屋久島", "url": "https://whc.unesco.org/ja/list/662"},
+                    {"name": "ドゥブロヴニク旧市街", "url": "https://whc.unesco.org/ja/list/95"},
+                    {"name": "ボロブドゥル寺院遺跡群", "url": "https://whc.unesco.org/ja/list/592"},
+                    {"name": "ピントゥラス川のクエバ・デ・ラス・マノス", "url": "https://whc.unesco.org/ja/list/936"},
+                    {"name": "ストーンヘンジ、エイヴベリーの巨石遺跡と関連遺跡群", "url": "https://whc.unesco.org/ja/list/373"},
+                    {"name": "メンフィスのピラミッド地帯", "url": "https://whc.unesco.org/ja/list/86"},
+                    {"name": "ギョべクリ・テペ", "url": "https://whc.unesco.org/ja/list/1572"},
+                    {"name": "ヴェネツィアとその潟", "url": "https://whc.unesco.org/ja/list/394"},
+                    {"name": "隊商都市ペトラ", "url": "https://whc.unesco.org/ja/list/326"},
+                    {"name": "シェーンブルン宮殿と庭園", "url": "https://whc.unesco.org/ja/list/786"},
+                    {"name": "アウシュヴィッツ・ビルケナウ", "url": "https://whc.unesco.org/ja/list/31"},
+                    {"name": "ハ・ロン湾", "url": "https://whc.unesco.org/ja/list/672"},
+                    {"name": "始皇帝陵と兵馬俑坑", "url": "https://whc.unesco.org/ja/list/441"},
+                    {"name": "アルベルベッロのトゥルッリ", "url": "https://whc.unesco.org/ja/list/787"},
+                    {"name": "文化交差路サマルカンド", "url": "https://whc.unesco.org/ja/list/603"},
+                    {"name": "ヌビアの遺跡群", "url": "https://whc.unesco.org/ja/list/88"},
+                    {"name": "タージ・マハル", "url": "https://whc.unesco.org/ja/list/252"},
+                    {"name": "マチュ・ピチュ", "url": "https://whc.unesco.org/ja/list/274"},
+                    {"name": "フィリピンのコルディリェーラの棚田群", "url": "https://whc.unesco.org/ja/list/722"},
+                    {"name": "ワルシャワ歴史地区", "url": "https://whc.unesco.org/ja/list/30"},
+                    {"name": "カナディアン・ロッキー山脈国立公園群", "url": "https://whc.unesco.org/ja/list/304"},
+                    {"name": "ヴィクトリアの滝", "url": "https://whc.unesco.org/ja/list/509"},
+                    {"name": "バイカル湖", "url": "https://whc.unesco.org/ja/list/754"},
+                    {"name": "アテネのアクロポリス", "url": "https://whc.unesco.org/ja/list/404"},
+                    {"name": "ケルン大聖堂", "url": "https://whc.unesco.org/ja/list/292"},
+                    {"name": "スプリットの史跡群とディオクレティアヌス宮殿", "url": "https://whc.unesco.org/ja/list/97"},
+                    {"name": "ドゥブロヴニク旧市街", "url": "https://whc.unesco.org/ja/list/95"},
+                    {"name": "ボロブドゥル寺院遺跡群", "url": "https://whc.unesco.org/ja/list/592"},
+                    {"name": "プランバナン寺院遺跡群", "url": "https://whc.unesco.org/ja/list/642"},
+                    {"name": "ワルシャワ歴史地区", "url": "https://whc.unesco.org/ja/list/30"},
+                    {"name": "アウシュヴィッツ・ビルケナウ", "url": "https://whc.unesco.org/ja/list/31"},
+                    {"name": "メンフィスのピラミッド地帯", "url": "https://whc.unesco.org/ja/list/86"},
+                    {"name": "ヌビアの遺跡群", "url": "https://whc.unesco.org/ja/list/88"}
+                ];
+
+                const linkData = heritageLinks.find(link => link.name === props.name);
+                const unescoLink = linkData ? `<a href="${linkData.url}" target="_blank" style="display: inline-block; margin-top: 10px; padding: 8px 12px; background-color: #007BFF; color: white; text-decoration: none; border-radius: 5px;">UNESCOページ</a>` : '';
+
                 const popupContent = `
                     <strong>${props.name}</strong><br>
                     ${props.country}<br>
-                    ${props.comment}<br>
-                    登録年: ${props.registeredYear}<br>
-                    <label>
-                        <input type="checkbox" id="visited-checkbox" ${props.visited ? 'checked' : ''}>
-                        訪問済み
-                    </label>
-                    <div id="comment-section" style="margin-top: 10px; ${props.visited ? '' : 'display: none;'}">
-                        <textarea id="visit-comment" placeholder="感想を入力してください" style="width: 100%; height: 50px;">${props.visitComment || ''}</textarea>
-                    </div>
-                    <button id="save-button" style="margin-top: 10px;">保存</button>
+                    ${props.comment || '詳細情報はありません'}<br>
+                    登録年: ${props.registeredYear || '不明'}<br>
+                    <img src="${thumbnailURL}" alt="${props.name}" style="width: 100%; margin-top: 10px; border-radius: 5px;">
+                    ${unescoLink}
                 `;
-                const popup = new maplibregl.Popup()
-                    .setLngLat(e.lngLat)
-                    .setHTML(popupContent)
-                    .addTo(map);
-
-                const checkbox = popup.getElement().querySelector('#visited-checkbox');
-                const commentSection = popup.getElement().querySelector('#comment-section');
-                const textarea = popup.getElement().querySelector('#visit-comment');
-                const saveButton = popup.getElement().querySelector('#save-button');
-
-                // チェックボックスのイベントリスナー
-                checkbox.addEventListener('change', function (event) {
-                    const visited = event.target.checked;
-                    props.visited = visited; // プロパティを更新
-                    commentSection.style.display = visited ? 'block' : 'none';
-                
-                    map.getSource('heritage').setData(map.getSource('heritage')._data); // 地図を更新
-                });
-
-                // テキストエリアのイベントリスナー
-                textarea.addEventListener('input', function (event) {
-                    props.visitComment = event.target.value; // 感想をプロパティに保存
-                    map.getSource('heritage').setData(map.getSource('heritage')._data); // 地図を更新
-                });
-
-                // 保存ボタンのイベントリスナー
-                saveButton.addEventListener('click', function () {
-                    // GeoJSONソースに更新されたプロパティを保存
-                    map.getSource('heritage').setData(map.getSource('heritage')._data);
-                    saveGeoJSONToLocalStorage(map.getSource('heritage')._data); // ローカルストレージに保存
-                    alert('保存しました！');
-                });
-            });
-
-            map.on('mouseenter', 'heritage-points', function () {
-                map.getCanvas().style.cursor = 'pointer';
-            });
-
-            map.on('mouseleave', 'heritage-points', function () {
-                map.getCanvas().style.cursor = '';
+                showPopup(coords, popupContent);
             });
 
             // Create a sidebar for displaying the list of heritage sites
@@ -187,6 +227,7 @@ const map = new maplibregl.Map({
             closeSidebarButton.style.position = 'absolute';
             closeSidebarButton.style.top = '10px';
             closeSidebarButton.style.right = '10px';
+            closeSidebarButton.style.zIndex = '1001';
             closeSidebarButton.style.backgroundColor = '#f44336';
             closeSidebarButton.style.color = 'white';
             closeSidebarButton.style.border = 'none';
@@ -281,17 +322,86 @@ const map = new maplibregl.Map({
                     countryElement.style.color = '#666';
                     countryElement.style.marginTop = '5px';
 
+                    // Add link to UNESCO page if available
+                    const heritageLinks = [
+                        {"name": "白川郷・五箇山の合掌造り集落", "url": "https://whc.unesco.org/ja/list/734"},
+                        {"name": "白神山地", "url": "https://whc.unesco.org/ja/list/663"},
+                        {"name": "屋久島", "url": "https://whc.unesco.org/ja/list/662"},
+                        {"name": "ドゥブロヴニク旧市街", "url": "https://whc.unesco.org/ja/list/95"},
+                        {"name": "ボロブドゥル寺院遺跡群", "url": "https://whc.unesco.org/ja/list/592"},
+                        {"name": "ピントゥラス川のクエバ・デ・ラス・マノス", "url": "https://whc.unesco.org/ja/list/936"},
+                        {"name": "ストーンヘンジ、エイヴベリーの巨石遺跡と関連遺跡群", "url": "https://whc.unesco.org/ja/list/373"},
+                        {"name": "メンフィスのピラミッド地帯", "url": "https://whc.unesco.org/ja/list/86"},
+                        {"name": "ギョべクリ・テペ", "url": "https://whc.unesco.org/ja/list/1572"},
+                        {"name": "ヴェネツィアとその潟", "url": "https://whc.unesco.org/ja/list/394"},
+                        {"name": "隊商都市ペトラ", "url": "https://whc.unesco.org/ja/list/326"},
+                        {"name": "シェーンブルン宮殿と庭園", "url": "https://whc.unesco.org/ja/list/786"},
+                        {"name": "アウシュヴィッツ・ビルケナウ", "url": "https://whc.unesco.org/ja/list/31"},
+                        {"name": "ハ・ロン湾", "url": "https://whc.unesco.org/ja/list/672"},
+                        {"name": "始皇帝陵と兵馬俑坑", "url": "https://whc.unesco.org/ja/list/441"},
+                        {"name": "アルベルベッロのトゥルッリ", "url": "https://whc.unesco.org/ja/list/787"},
+                        {"name": "文化交差路サマルカンド", "url": "https://whc.unesco.org/ja/list/603"},
+                        {"name": "ヌビアの遺跡群", "url": "https://whc.unesco.org/ja/list/88"},
+                        {"name": "タージ・マハル", "url": "https://whc.unesco.org/ja/list/252"},
+                        {"name": "マチュ・ピチュ", "url": "https://whc.unesco.org/ja/list/274"},
+                        {"name": "フィリピンのコルディリェーラの棚田群", "url": "https://whc.unesco.org/ja/list/722"},
+                        {"name": "ワルシャワ歴史地区", "url": "https://whc.unesco.org/ja/list/30"},
+                        {"name": "カナディアン・ロッキー山脈国立公園群", "url": "https://whc.unesco.org/ja/list/304"},
+                        {"name": "ヴィクトリアの滝", "url": "https://whc.unesco.org/ja/list/509"},
+                        {"name": "バイカル湖", "url": "https://whc.unesco.org/ja/list/754"},
+                        {"name": "アテネのアクロポリス", "url": "https://whc.unesco.org/ja/list/404"},
+                        {"name": "ケルン大聖堂", "url": "https://whc.unesco.org/ja/list/292"},
+                        {"name": "スプリットの史跡群とディオクレティアヌス宮殿", "url": "https://whc.unesco.org/ja/list/97"},
+                        {"name": "ドゥブロヴニク旧市街", "url": "https://whc.unesco.org/ja/list/95"},
+                        {"name": "ボロブドゥル寺院遺跡群", "url": "https://whc.unesco.org/ja/list/592"},
+                        {"name": "プランバナン寺院遺跡群", "url": "https://whc.unesco.org/ja/list/642"},
+                        {"name": "ワルシャワ歴史地区", "url": "https://whc.unesco.org/ja/list/30"},
+                        {"name": "アウシュヴィッツ・ビルケナウ", "url": "https://whc.unesco.org/ja/list/31"},
+                        {"name": "メンフィスのピラミッド地帯", "url": "https://whc.unesco.org/ja/list/86"},
+                        {"name": "ヌビアの遺跡群", "url": "https://whc.unesco.org/ja/list/88"}
+                    ];
+
+                    const linkData = heritageLinks.find(link => link.name === props.name);
+                    if (linkData) {
+                        const linkElement = document.createElement('a');
+                        linkElement.href = linkData.url;
+                        linkElement.target = '_blank';
+                        linkElement.textContent = 'UNESCOページ';
+                        linkElement.style.display = 'block';
+                        linkElement.style.marginTop = '5px';
+                        linkElement.style.fontSize = '12px';
+                        linkElement.style.color = '#007BFF';
+                        linkElement.style.textDecoration = 'none';
+
+                        // Convert the link into a button style
+                        linkElement.style.display = 'inline-block';
+                        linkElement.style.padding = '8px 12px';
+                        linkElement.style.backgroundColor = '#007BFF';
+                        linkElement.style.color = '#ffffff';
+                        linkElement.style.border = 'none';
+                        linkElement.style.borderRadius = '5px';
+                        linkElement.style.textAlign = 'center';
+                        linkElement.style.textDecoration = 'none';
+                        linkElement.style.fontSize = '14px';
+                        linkElement.style.cursor = 'pointer';
+
+                        linkElement.addEventListener('mouseover', () => {
+                            linkElement.style.backgroundColor = '#0056b3';
+                        });
+
+                        linkElement.addEventListener('mouseout', () => {
+                            linkElement.style.backgroundColor = '#007BFF';
+                        });
+
+                        listItem.appendChild(linkElement);
+                    }
+
                     listItem.appendChild(nameElement);
                     listItem.appendChild(countryElement);
 
                     listItem.addEventListener('mouseover', () => {
                         listItem.style.backgroundColor = '#f0f8ff';
                         listItem.style.transform = 'scale(1.02)';
-                        map.easeTo({
-                            center: coords,
-                            zoom: map.getZoom() + 1,
-                            duration: 500
-                        });
                     });
 
                     listItem.addEventListener('mouseout', () => {
@@ -300,22 +410,18 @@ const map = new maplibregl.Map({
                     });
 
                     listItem.addEventListener('click', () => {
-                        map.flyTo({
-                            center: coords,
-                            zoom: 10
-                        });
-
                         const popupContent = `
                             <strong>${props.name}</strong><br>
                             ${props.country}<br>
                             ${props.comment || '詳細情報はありません'}<br>
-                            登録年: ${props.registeredYear || '不明'}
+                            登録年: ${props.registeredYear || '不明'}<br>
+                            <img src="${props.thumbnail || 'https://via.placeholder.com/150'}" alt="${props.name}" style="width: 100%; margin-top: 10px; border-radius: 5px;">
                         `;
-
-                        new maplibregl.Popup()
-                            .setLngLat(coords)
-                            .setHTML(popupContent)
-                            .addTo(map);
+                        showPopup(coords, popupContent);
+                        map.flyTo({
+                            center: coords,
+                            zoom: 10
+                        });
                     });
 
                     sidebarList.appendChild(listItem);
@@ -342,6 +448,111 @@ const map = new maplibregl.Map({
 
         // Adjust the sidebar list to add padding at the top to avoid overlap
         sidebarList.style.paddingTop = '90px';
+
+        // Add a search bar to the top right of the map
+        const searchBarContainer = document.createElement('div');
+        searchBarContainer.style.position = 'absolute';
+        searchBarContainer.style.top = '10px';
+        searchBarContainer.style.right = '10px';
+        searchBarContainer.style.zIndex = '1000';
+        searchBarContainer.style.backgroundColor = 'white';
+        searchBarContainer.style.padding = '10px';
+        searchBarContainer.style.borderRadius = '5px';
+        searchBarContainer.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.2)';
+
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.placeholder = '世界遺産を検索';
+        searchInput.style.width = '200px';
+        searchInput.style.padding = '5px';
+        searchInput.style.border = '1px solid #ddd';
+        searchInput.style.borderRadius = '3px';
+        searchInput.style.fontSize = '14px';
+
+        const searchResults = document.createElement('ul');
+        searchResults.style.listStyle = 'none';
+        searchResults.style.margin = '5px 0 0';
+        searchResults.style.padding = '0';
+        searchResults.style.maxHeight = '150px';
+        searchResults.style.overflowY = 'auto';
+        searchResults.style.border = '1px solid #ddd';
+        searchResults.style.borderRadius = '3px';
+        searchResults.style.backgroundColor = 'white';
+        searchResults.style.display = 'none';
+        searchResults.style.position = 'absolute';
+        searchResults.style.width = 'calc(100% - 20px)';
+        searchResults.style.zIndex = '1001';
+
+        searchBarContainer.appendChild(searchInput);
+        searchBarContainer.appendChild(searchResults);
+        document.body.appendChild(searchBarContainer);
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            searchResults.innerHTML = '';
+
+            if (!query) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            const heritageSource = map.getSource('heritage');
+            if (!heritageSource || !heritageSource._data) {
+                alert('データがまだ読み込まれていません');
+                return;
+            }
+
+            const features = heritageSource._data.features;
+            const matches = features.filter(feature => feature.properties.name.toLowerCase().includes(query));
+
+            if (matches.length > 0) {
+                matches.forEach(match => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = match.properties.name;
+                    listItem.style.padding = '5px';
+                    listItem.style.cursor = 'pointer';
+                    listItem.style.borderBottom = '1px solid #ddd';
+
+                    listItem.addEventListener('click', () => {
+                        const coords = match.geometry.coordinates;
+                        const props = match.properties;
+
+                        map.flyTo({
+                            center: coords,
+                            zoom: 10
+                        });
+
+                        const popupContent = `
+                            <strong>${props.name}</strong><br>
+                            ${props.country}<br>
+                            ${props.comment || '詳細情報はありません'}<br>
+                            登録年: ${props.registeredYear || '不明'}<br>
+                            <img src="${props.thumbnail || 'https://via.placeholder.com/150'}" alt="${props.name}" style="width: 100%; margin-top: 10px; border-radius: 5px;">
+                        `;
+
+                        new maplibregl.Popup()
+                            .setLngLat(coords)
+                            .setHTML(popupContent)
+                            .addTo(map);
+
+                        searchResults.style.display = 'none';
+                        searchInput.value = '';
+                    });
+
+                    searchResults.appendChild(listItem);
+                });
+
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!searchBarContainer.contains(event.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
