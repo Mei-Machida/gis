@@ -22,7 +22,7 @@ const map = new maplibregl.Map({
       'gsi-english': {
         type: 'raster',
         tiles: [
-          'https://cyberjapandata.gsi.go.jp/xyz/english/{z}/{x}/{y}.png'
+          'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
         ],
         tileSize: 256,
         attribution: '地理院タイル &copy; <a href="https://www.gsi.go.jp/" target="_blank">国土地理院</a>'
@@ -179,32 +179,39 @@ const map = new maplibregl.Map({
             sidebar.style.overflowY = 'auto';
             sidebar.style.display = 'none';
 
-            // Add a header to the sidebar
-            const header = document.createElement('div');
-            header.textContent = '世界遺産リスト';
-            header.style.backgroundColor = '#007BFF';
-            header.style.color = 'white';
-            header.style.padding = '15px';
-            header.style.fontSize = '18px';
-            header.style.fontWeight = 'bold';
-            header.style.display = 'flex';
-            header.style.justifyContent = 'space-between';
-            header.style.alignItems = 'center';
-            header.style.borderTopLeftRadius = '10px';
-            header.style.borderTopRightRadius = '10px';
-
-            // Move the close button into the header
+            // Add a close button to the sidebar
             const closeSidebarButton = document.createElement('button');
             closeSidebarButton.textContent = '閉じる';
-            closeSidebarButton.style.margin = '0';
-            closeSidebarButton.style.backgroundColor = 'transparent';
-            closeSidebarButton.style.color = 'white';
-            closeSidebarButton.style.fontSize = '16px';
-            closeSidebarButton.style.border = 'none';
+            closeSidebarButton.style.marginBottom = '10px';
             closeSidebarButton.style.cursor = 'pointer';
-            header.appendChild(closeSidebarButton);
+            closeSidebarButton.style.position = 'absolute';
+            closeSidebarButton.style.top = '10px';
+            closeSidebarButton.style.right = '10px';
+            closeSidebarButton.style.backgroundColor = '#f44336';
+            closeSidebarButton.style.color = 'white';
+            closeSidebarButton.style.border = 'none';
+            closeSidebarButton.style.padding = '5px 10px';
+            closeSidebarButton.style.borderRadius = '5px';
+            closeSidebarButton.addEventListener('click', () => {
+                sidebar.style.display = 'none';
+            });
+            sidebar.appendChild(closeSidebarButton);
 
-            sidebar.appendChild(header);
+            // Add styles to the sidebar for better design
+            sidebar.style.border = '1px solid #ddd';
+            sidebar.style.borderRadius = '8px';
+            sidebar.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+            sidebar.style.fontFamily = 'Arial, sans-serif';
+            sidebar.style.fontSize = '14px';
+
+            // Add hover effect to the close button
+            closeSidebarButton.addEventListener('mouseover', () => {
+                closeSidebarButton.style.backgroundColor = '#d32f2f';
+            });
+
+            closeSidebarButton.addEventListener('mouseout', () => {
+                closeSidebarButton.style.backgroundColor = '#f44336';
+            });
 
             // Add a container for the list of heritage sites
             const sidebarList = document.createElement('ul');
@@ -243,21 +250,11 @@ const map = new maplibregl.Map({
                 }
 
                 const features = heritageSource._data.features;
-
-                // Style the sidebar to look like an app with a header and card-style list items
-                sidebar.style.backgroundColor = '#f0f0f0'; // サイドバー全体の背景色を薄いグレーに設定
-                sidebar.style.borderRadius = '10px';
-                sidebar.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-
-                // Style the header
-                header.style.backgroundColor = '#007BFF'; // ヘッダー部分の背景色を青に設定
-                header.style.color = 'white'; // ヘッダーの文字色を白に設定
-
-                // Style the list items as cards
+                // Apply styles to make the list items more visually appealing
                 sidebarList.style.padding = '10px';
-                sidebarList.style.margin = '0';
-                sidebarList.style.backgroundColor = '#ffffff'; // リスト部分の背景色を白に設定
-                sidebarList.style.borderRadius = '8px'; // リスト部分に角丸を追加
+                sidebarList.style.backgroundColor = '#f9f9f9';
+                sidebarList.style.borderRadius = '8px';
+                sidebarList.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
 
                 // Update each list item style to format the country on a new line with smaller font size
                 features.forEach(feature => {
@@ -267,11 +264,10 @@ const map = new maplibregl.Map({
                     const listItem = document.createElement('li');
                     listItem.style.cursor = 'pointer';
                     listItem.style.marginBottom = '10px';
-                    listItem.style.padding = '15px';
+                    listItem.style.padding = '10px';
                     listItem.style.border = '1px solid #ddd';
-                    listItem.style.borderRadius = '8px';
+                    listItem.style.borderRadius = '5px';
                     listItem.style.backgroundColor = '#ffffff';
-                    listItem.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                     listItem.style.transition = 'background-color 0.3s, transform 0.2s';
 
                     const nameElement = document.createElement('div');
@@ -293,7 +289,7 @@ const map = new maplibregl.Map({
                         listItem.style.transform = 'scale(1.02)';
                         map.easeTo({
                             center: coords,
-                            zoom: 4, // ズームレベルを少し下げる
+                            zoom: map.getZoom() + 1,
                             duration: 500
                         });
                     });
@@ -313,8 +309,7 @@ const map = new maplibregl.Map({
                             <strong>${props.name}</strong><br>
                             ${props.country}<br>
                             ${props.comment || '詳細情報はありません'}<br>
-                            登録年: ${props.registeredYear || '不明'}<br>
-                            <img src="${props.imageUrl || 'placeholder.jpg'}" alt="${props.name}" style="width:100%; height:auto; margin-top:10px;">
+                            登録年: ${props.registeredYear || '不明'}
                         `;
 
                         new maplibregl.Popup()
