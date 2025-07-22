@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>行ってみたい世界遺産マップ!</title>
+    <title>行ってみたい世界遜マップ!</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <style>
         body { margin: 0; padding: 0; }
@@ -201,6 +201,22 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
                     ${unescoLink}
                 `;
                 showPopup(coords, popupContent);
+            });
+
+            // Mark as visited when a site is clicked
+            map.on('click', 'heritage-points', function (e) {
+                const props = e.features[0].properties;
+                props.visited = true; // Mark as visited
+
+                // Update the GeoJSON source to reflect the change
+                const heritageSource = map.getSource('heritage');
+                if (heritageSource) {
+                    const data = heritageSource._data;
+                    heritageSource.setData(data);
+                }
+
+                // Save the updated visited status to localStorage
+                saveToLocalStorage(props.name, true, props.visitComment || '');
             });
 
             // Create a sidebar for displaying the list of heritage sites
@@ -447,7 +463,7 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
         // Adjust the sidebar list to add padding at the top to avoid overlap
         sidebarList.style.paddingTop = '90px';
 
-        // Add a search bar to the top right of the map
+        // サーチバーの作成
         const searchBarContainer = document.createElement('div');
         searchBarContainer.style.position = 'absolute';
         searchBarContainer.style.top = '10px';
@@ -485,6 +501,7 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
         searchBarContainer.appendChild(searchResults);
         document.body.appendChild(searchBarContainer);
 
+        // 検索入力イベント
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.trim().toLowerCase();
             searchResults.innerHTML = '';
@@ -496,7 +513,7 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
 
             const heritageSource = map.getSource('heritage');
             if (!heritageSource || !heritageSource._data) {
-                alert('データがまだ読み込まれていません');
+                searchResults.style.display = 'none';
                 return;
             }
 
@@ -545,6 +562,7 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
             }
         });
 
+        // 検索結果以外をクリックしたらリストを閉じる
         document.addEventListener('click', (event) => {
             if (!searchBarContainer.contains(event.target)) {
                 searchResults.style.display = 'none';
