@@ -12,6 +12,10 @@
     <script src="https://unpkg.com/maplibre-gl@3.2.1/dist/maplibre-gl.js"></script>
 </head>
 <body>
+    <div style="position: absolute; top: 0; left: 0; width: 100%; background: #fff; z-index: 1100; padding: 20px 0 10px 0; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); font-family: 'Arial', sans-serif;">
+        <h1 style="margin: 0; font-size: 2em; color: #007BFF;">芽瑛の行ってみたい世界遺産マップ</h1>
+        <p style="margin: 5px 0 0 0; font-size: 1em; color: #333;">世界の素敵な遺産を探して、夢を広げよう！</p>
+    </div>
     <div id="map"></div>
     <script>
 const map = new maplibregl.Map({
@@ -116,6 +120,106 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
                             'circle-stroke-width': 2,
                             'circle-stroke-color': '#000000'
                         }
+                    });
+
+                    // サイドバーリストを自動生成
+                    sidebarList.innerHTML = '';
+                    const features = data.features;
+                    features.forEach(feature => {
+                        const props = feature.properties;
+                        const coords = feature.geometry.coordinates;
+
+                        const listItem = document.createElement('li');
+                        listItem.style.cursor = 'pointer';
+                        listItem.style.marginBottom = '10px';
+                        listItem.style.padding = '10px';
+                        listItem.style.border = '1px solid #ddd';
+                        listItem.style.borderRadius = '5px';
+                        listItem.style.backgroundColor = '#ffffff';
+                        listItem.style.transition = 'background-color 0.3s, transform 0.2s';
+
+                        const nameElement = document.createElement('div');
+                        nameElement.textContent = props.name;
+                        nameElement.style.fontSize = '16px';
+                        nameElement.style.fontWeight = 'bold';
+
+                        const countryElement = document.createElement('div');
+                        countryElement.textContent = `(${props.country})`;
+                        countryElement.style.fontSize = '12px';
+                        countryElement.style.color = '#666';
+                        countryElement.style.marginTop = '5px';
+
+                        listItem.appendChild(nameElement);
+                        listItem.appendChild(countryElement);
+
+                        listItem.addEventListener('mouseover', () => {
+                            listItem.style.backgroundColor = '#f0f8ff';
+                            listItem.style.transform = 'scale(1.02)';
+                        });
+                        listItem.addEventListener('mouseout', () => {
+                            listItem.style.backgroundColor = '#ffffff';
+                            listItem.style.transform = 'scale(1)';
+                        });
+                        listItem.addEventListener('click', () => {
+                            const popupContent = `
+                                <strong>${props.name}</strong><br>
+                                ${props.country}<br>
+                                ${props.comment || '詳細情報はありません'}<br>
+                                登録年: ${props.registeredYear || '不明'}<br>
+                            `;
+                            showPopup(coords, popupContent);
+                            map.flyTo({
+                                center: coords,
+                                zoom: 10
+                            });
+                        });
+                        sidebarList.appendChild(listItem);
+                    });
+
+                    // 検索バー下に全世界遺産リストを追加
+                    let searchAllList = document.getElementById('search-all-list');
+                    if (!searchAllList) {
+                        searchAllList = document.createElement('ul');
+                        searchAllList.id = 'search-all-list';
+                        searchAllList.style.listStyle = 'none';
+                        searchAllList.style.padding = '10px 0 0 0';
+                        searchAllList.style.margin = '0';
+                        searchAllList.style.maxHeight = '180px';
+                        searchAllList.style.overflowY = 'auto';
+                        searchAllList.style.borderTop = '1px solid #eee';
+                        searchAllList.style.backgroundColor = 'white';
+                        searchAllList.style.fontSize = '14px';
+                        searchBarContainer.appendChild(searchAllList);
+                    }
+                    searchAllList.innerHTML = '';
+                    features.forEach(feature => {
+                        const props = feature.properties;
+                        const coords = feature.geometry.coordinates;
+                        const listItem = document.createElement('li');
+                        listItem.textContent = props.name;
+                        listItem.style.padding = '6px';
+                        listItem.style.cursor = 'pointer';
+                        listItem.style.borderBottom = '1px solid #eee';
+                        listItem.addEventListener('mouseover', () => {
+                            listItem.style.backgroundColor = '#f0f8ff';
+                        });
+                        listItem.addEventListener('mouseout', () => {
+                            listItem.style.backgroundColor = 'white';
+                        });
+                        listItem.addEventListener('click', () => {
+                            map.flyTo({ center: coords, zoom: 10 });
+                            const popupContent = `
+                                <strong>${props.name}</strong><br>
+                                ${props.country}<br>
+                                ${props.comment || '詳細情報はありません'}<br>
+                                登録年: ${props.registeredYear || '不明'}<br>
+                            `;
+                            new maplibregl.Popup()
+                                .setLngLat(coords)
+                                .setHTML(popupContent)
+                                .addTo(map);
+                        });
+                        searchAllList.appendChild(listItem);
                     });
                 })
                 .catch(error => {
@@ -223,16 +327,18 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
             const sidebar = document.createElement('div');
             sidebar.id = 'heritage-sidebar';
             sidebar.style.position = 'fixed';
-            sidebar.style.top = '0';
-            sidebar.style.left = '0';
-            sidebar.style.width = '300px';
-            sidebar.style.height = '100%';
-            sidebar.style.backgroundColor = 'white';
-            sidebar.style.padding = '20px';
-            sidebar.style.boxShadow = '2px 0 5px rgba(0, 0, 0, 0.2)';
-            sidebar.style.zIndex = '1000';
-            sidebar.style.overflowY = 'auto';
-            sidebar.style.display = 'none';
+sidebar.style.right = '20px';
+sidebar.style.bottom = '100px';
+sidebar.style.top = 'auto';
+sidebar.style.left = 'auto';
+sidebar.style.width = '320px';
+sidebar.style.height = '320px';
+sidebar.style.backgroundColor = 'white';
+sidebar.style.padding = '20px';
+sidebar.style.boxShadow = '2px 0 5px rgba(0, 0, 0, 0.2)';
+sidebar.style.zIndex = '1000';
+sidebar.style.overflowY = 'auto';
+sidebar.style.display = 'block';
 
             // Add a close button to the sidebar
             const closeSidebarButton = document.createElement('button');
@@ -250,6 +356,7 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
             closeSidebarButton.style.borderRadius = '5px';
             closeSidebarButton.addEventListener('click', () => {
                 sidebar.style.display = 'none';
+                listTitle.style.display = 'block';
             });
             sidebar.appendChild(closeSidebarButton);
 
@@ -288,161 +395,18 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
             listTitle.style.cursor = 'pointer';
             listTitle.style.borderRadius = '5px';
             listTitle.style.marginBottom = '10px';
-            listTitle.style.position = 'absolute';
-            listTitle.style.top = '10px';
-            listTitle.style.left = '10px';
-            listTitle.style.zIndex = '1000';
-            listTitle.style.fontSize = '16px'; // Increase the font size of the "世界遺産リスト" button
+            listTitle.style.position = 'fixed';
+            listTitle.style.right = '20px';
+            listTitle.style.bottom = '340px';
+            listTitle.style.zIndex = '1002';
+            listTitle.style.fontSize = '16px';
+            listTitle.style.display = 'none'; // 初期状態は非表示
             document.body.appendChild(listTitle);
 
             // Update the "世界遺産リスト" button to dynamically fetch features from GeoJSON
             listTitle.addEventListener('click', () => {
-                sidebarList.innerHTML = ''; // Clear existing items
-
-                const heritageSource = map.getSource('heritage');
-                if (!heritageSource || !heritageSource._data) {
-                    alert('データがまだ読み込まれていません');
-                    return;
-                }
-
-                const features = heritageSource._data.features;
-                // Apply styles to make the list items more visually appealing
-                sidebarList.style.padding = '10px';
-                sidebarList.style.backgroundColor = '#f9f9f9';
-                sidebarList.style.borderRadius = '8px';
-                sidebarList.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-
-                // Update each list item style to format the country on a new line with smaller font size
-                features.forEach(feature => {
-                    const props = feature.properties;
-                    const coords = feature.geometry.coordinates;
-
-                    const listItem = document.createElement('li');
-                    listItem.style.cursor = 'pointer';
-                    listItem.style.marginBottom = '10px';
-                    listItem.style.padding = '10px';
-                    listItem.style.border = '1px solid #ddd';
-                    listItem.style.borderRadius = '5px';
-                    listItem.style.backgroundColor = '#ffffff';
-                    listItem.style.transition = 'background-color 0.3s, transform 0.2s';
-
-                    const nameElement = document.createElement('div');
-                    nameElement.textContent = props.name;
-                    nameElement.style.fontSize = '16px';
-                    nameElement.style.fontWeight = 'bold';
-
-                    const countryElement = document.createElement('div');
-                    countryElement.textContent = `(${props.country})`;
-                    countryElement.style.fontSize = '12px';
-                    countryElement.style.color = '#666';
-                    countryElement.style.marginTop = '5px';
-
-                    // Add link to UNESCO page if available
-                    const heritageLinks = [
-                        {"name": "白川郷・五箇山の合掌造り集落", "url": "https://whc.unesco.org/ja/list/734"},
-                        {"name": "白神山地", "url": "https://whc.unesco.org/ja/list/663"},
-                        {"name": "屋久島", "url": "https://whc.unesco.org/ja/list/662"},
-                        {"name": "ドゥブロヴニク旧市街", "url": "https://whc.unesco.org/ja/list/95"},
-                        {"name": "ボロブドゥル寺院遺跡群", "url": "https://whc.unesco.org/ja/list/592"},
-                        {"name": "ピントゥラス川のクエバ・デ・ラス・マノス", "url": "https://whc.unesco.org/ja/list/936"},
-                        {"name": "ストーンヘンジ、エイヴベリーの巨石遺跡と関連遺跡群", "url": "https://whc.unesco.org/ja/list/373"},
-                        {"name": "メンフィスのピラミッド地帯", "url": "https://whc.unesco.org/ja/list/86"},
-                        {"name": "ギョべクリ・テペ", "url": "https://whc.unesco.org/ja/list/1572"},
-                        {"name": "ヴェネツィアとその潟", "url": "https://whc.unesco.org/ja/list/394"},
-                        {"name": "隊商都市ペトラ", "url": "https://whc.unesco.org/ja/list/326"},
-                        {"name": "シェーンブルン宮殿と庭園", "url": "https://whc.unesco.org/ja/list/786"},
-                        {"name": "アウシュヴィッツ・ビルケナウ", "url": "https://whc.unesco.org/ja/list/31"},
-                        {"name": "ハ・ロン湾", "url": "https://whc.unesco.org/ja/list/672"},
-                        {"name": "始皇帝陵と兵馬俑坑", "url": "https://whc.unesco.org/ja/list/441"},
-                        {"name": "アルベルベッロのトゥルッリ", "url": "https://whc.unesco.org/ja/list/787"},
-                        {"name": "文化交差路サマルカンド", "url": "https://whc.unesco.org/ja/list/603"},
-                        {"name": "ヌビアの遺跡群", "url": "https://whc.unesco.org/ja/list/88"},
-                        {"name": "タージ・マハル", "url": "https://whc.unesco.org/ja/list/252"},
-                        {"name": "マチュ・ピチュ", "url": "https://whc.unesco.org/ja/list/274"},
-                        {"name": "フィリピンのコルディリェーラの棚田群", "url": "https://whc.unesco.org/ja/list/722"},
-                        {"name": "ワルシャワ歴史地区", "url": "https://whc.unesco.org/ja/list/30"},
-                        {"name": "カナディアン・ロッキー山脈国立公園群", "url": "https://whc.unesco.org/ja/list/304"},
-                        {"name": "ヴィクトリアの滝", "url": "https://whc.unesco.org/ja/list/509"},
-                        {"name": "バイカル湖", "url": "https://whc.unesco.org/ja/list/754"},
-                        {"name": "アテネのアクロポリス", "url": "https://whc.unesco.org/ja/list/404"},
-                        {"name": "ケルン大聖堂", "url": "https://whc.unesco.org/ja/list/292"},
-                        {"name": "スプリットの史跡群とディオクレティアヌス宮殿", "url": "https://whc.unesco.org/ja/list/97"},
-                        {"name": "ドゥブロヴニク旧市街", "url": "https://whc.unesco.org/ja/list/95"},
-                        {"name": "ボロブドゥル寺院遺跡群", "url": "https://whc.unesco.org/ja/list/592"},
-                        {"name": "プランバナン寺院遺跡群", "url": "https://whc.unesco.org/ja/list/642"},
-                        {"name": "ワルシャワ歴史地区", "url": "https://whc.unesco.org/ja/list/30"},
-                        {"name": "アウシュヴィッツ・ビルケナウ", "url": "https://whc.unesco.org/ja/list/31"},
-                        {"name": "メンフィスのピラミッド地帯", "url": "https://whc.unesco.org/ja/list/86"},
-                        {"name": "ヌビアの遺跡群", "url": "https://whc.unesco.org/ja/list/88"}
-                    ];
-
-                    const linkData = heritageLinks.find(link => link.name === props.name);
-                    if (linkData) {
-                        const linkElement = document.createElement('a');
-                        linkElement.href = linkData.url;
-                        linkElement.target = '_blank';
-                        linkElement.textContent = 'UNESCOページ';
-                        linkElement.style.display = 'block';
-                        linkElement.style.marginTop = '5px';
-                        linkElement.style.fontSize = '12px';
-                        linkElement.style.color = '#007BFF';
-                        linkElement.style.textDecoration = 'none';
-
-                        // Convert the link into a button style
-                        linkElement.style.display = 'inline-block';
-                        linkElement.style.padding = '6px 10px';
-                        linkElement.style.backgroundColor = '#007BFF';
-                        linkElement.style.color = '#ffffff';
-                        linkElement.style.border = 'none';
-                        linkElement.style.borderRadius = '5px';
-                        linkElement.style.textAlign = 'center';
-                        linkElement.style.textDecoration = 'none';
-                        linkElement.style.fontSize = '14px';
-                        linkElement.style.cursor = 'pointer';
-
-                        linkElement.addEventListener('mouseover', () => {
-                            linkElement.style.backgroundColor = '#0056b3';
-                        });
-
-                        linkElement.addEventListener('mouseout', () => {
-                            linkElement.style.backgroundColor = '#007BFF';
-                        });
-
-                        listItem.appendChild(linkElement);
-                    }
-
-                    listItem.appendChild(nameElement);
-                    listItem.appendChild(countryElement);
-
-                    listItem.addEventListener('mouseover', () => {
-                        listItem.style.backgroundColor = '#f0f8ff';
-                        listItem.style.transform = 'scale(1.02)';
-                    });
-
-                    listItem.addEventListener('mouseout', () => {
-                        listItem.style.backgroundColor = '#ffffff';
-                        listItem.style.transform = 'scale(1)';
-                    });
-
-                    listItem.addEventListener('click', () => {
-                        const popupContent = `
-                            <strong>${props.name}</strong><br>
-                            ${props.country}<br>
-                            ${props.comment || '詳細情報はありません'}<br>
-                            登録年: ${props.registeredYear || '不明'}<br>
-                        `;
-                        showPopup(coords, popupContent);
-                        map.flyTo({
-                            center: coords,
-                            zoom: 10
-                        });
-                    });
-
-                    sidebarList.appendChild(listItem);
-                });
-
-                sidebar.style.display = 'block'; // Show the sidebar
-                listTitle.style.display = 'none'; // Hide the "世界遺産リスト" button
+                sidebar.style.display = 'block';
+                listTitle.style.display = 'none';
             });
 
             closeSidebarButton.addEventListener('click', () => {
@@ -465,10 +429,12 @@ document.getElementById('map').style.backgroundColor = '#ADD8E6';
 
         // サーチバーの作成
         const searchBarContainer = document.createElement('div');
-        searchBarContainer.style.position = 'absolute';
-        searchBarContainer.style.top = '10px';
-        searchBarContainer.style.right = '10px';
-        searchBarContainer.style.zIndex = '1000';
+searchBarContainer.style.position = 'fixed';
+searchBarContainer.style.top = 'auto';
+searchBarContainer.style.right = '20px';
+searchBarContainer.style.bottom = '0px';
+searchBarContainer.style.width = '320px';
+searchBarContainer.style.zIndex = '1101';
         searchBarContainer.style.backgroundColor = 'white';
         searchBarContainer.style.padding = '10px';
         searchBarContainer.style.borderRadius = '5px';
